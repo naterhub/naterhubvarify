@@ -3,14 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Certificate • Nater's Learning Hub</title>
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Backendless SDK -->
-  <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script>
-
+  <title>Certificate Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root{
       --primary-color:#ff6b6b;
@@ -26,146 +20,157 @@
       color:var(--text-color);
       min-height:100vh;
       overflow-x:hidden;
-      text-align:center;
-      padding:30px;
     }
-    h1{
-      color:var(--secondary-color);
-      margin-bottom:25px;
-      font-size:2rem;
-      text-shadow:0 0 10px var(--secondary-color);
+    header.navbar{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:15px 30px;background:var(--card-bg);
+      box-shadow:0 5px 15px rgba(0,0,0,0.3);position:relative;z-index:1000;
+    }
+    header.navbar h1{
+      font-size:30px;
+      color:var(--primary-color);
+    }
+    header.navbar img{
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      border:3px solid var(--primary-color);
+      object-fit:cover;
+      box-shadow:0 0 15px var(--primary-color);
     }
     .main-container{
-      max-width:600px;
-      margin:0 auto;
+      max-width:500px;
+      margin:80px auto 40px;
+      padding:30px 20px;
       display:flex;
       flex-direction:column;
-      gap:20px;
+      gap:30px;
     }
     .card{
       background:var(--card-bg);
-      padding:30px 20px;
       border-radius:20px;
+      padding:30px;
       box-shadow:0 10px 25px rgba(0,0,0,0.4);
       border:2px solid rgba(255,255,255,0.1);
+      backdrop-filter:blur(5px);
+      text-align:center;
+    }
+    .card h2{
+      color:var(--primary-color);
+      margin-bottom:20px;
+      text-shadow:0 0 10px var(--primary-color);
     }
     .card input{
       width:100%;
       padding:12px;
-      border:none;
+      margin:10px 0;
       border-radius:10px;
-      background:rgba(255,255,255,0.05);
+      border:none;
+      background:rgba(255,255,255,0.1);
       color:var(--text-color);
-      margin-bottom:15px;
-      font-size:1rem;
-    }
-    .card input:focus{
+      font-size:16px;
       outline:none;
-      box-shadow:0 0 10px var(--secondary-color);
-      background:rgba(72,229,194,0.1);
     }
     .card button{
-      width:100%;
-      padding:12px;
-      font-size:1rem;
-      font-weight:600;
-      color:#1e1e2d;
       background:linear-gradient(90deg,var(--primary-color),var(--secondary-color));
+      color:#fff;
+      padding:12px;
+      width:100%;
       border:none;
       border-radius:10px;
+      font-size:16px;
+      font-weight:600;
       cursor:pointer;
+      margin-top:10px;
       transition:0.3s;
-      box-shadow:0 4px 15px rgba(72,229,194,0.4);
     }
     .card button:hover{
-      background:linear-gradient(90deg,#ff5252,#35c9a8);
-      box-shadow:0 6px 20px rgba(72,229,194,0.6);
+      transform:translateY(-2px);
+      box-shadow:0 0 20px var(--primary-color),0 0 25px var(--secondary-color);
     }
-    #result{
+    .result{
       margin-top:20px;
-      padding:20px;
-      border-radius:15px;
-      text-align:left;
-      box-shadow:0 8px 20px rgba(72,229,194,0.3);
-      background:rgba(42,42,62,0.9);
-      border-left:5px solid var(--secondary-color);
-      font-size:1rem;
+      font-size:16px;
+      font-weight:600;
+      line-height:1.6;
     }
-    #result.invalid{
-      border-left:5px solid #ff6b6b;
-    }
-    @media(max-width:768px){
-      .card{padding:25px 15px;}
-      h1{font-size:1.8rem;}
+    .success{color:#27ae60;}
+    .error{color:#e74c3c;}
+    
+  img{
+        
+        width:100px;
     }
   </style>
 </head>
 <body>
-
-  <h1>Verify Certificate</h1>
+  <header class="navbar">
+    <h1>🎓 Certificate Verification</h1>
+    <!-- ✅ Replace 'logo.png' with your image path -->
+    <img src="logo.png" alt="Profile/Logo">
+  </header>
+  
+ 
 
   <div class="main-container">
     <div class="card">
-      <input id="certInput" type="text" placeholder="Enter Certificate Code" />
-      <button onclick="verifyCert()"><i class="fas fa-check"></i> Verify</button>
-      <div id="result">Enter a certificate code to check its validity.</div>
+      <h2>Verify Certificate</h2>
+      <input type="text" id="certificateId" placeholder="Enter Certificate Code">
+      <button onclick="verifyCertificate()">Verify</button>
+      <div id="result" class="result"></div>
     </div>
   </div>
 
+  <!-- ✅ Backendless SDK -->
+  <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script>
   <script>
-    // Initialize Backendless
-    Backendless.initApp(
-      "EC3F680C-888B-4849-A309-C6BBA192EF6E", // App ID
-      "F2685256-D127-4363-B348-94D386889B02"  // API Key
-    );
+    const APP_ID = "EC3F680C-888B-4849-A309-C6BBA192EF6E";
+    const API_KEY = "F2685256-D127-4363-B348-94D386889B02"; 
+    const SERVER_URL = "https://api.backendless.com";
+    const TABLE_NAME = "StudentCertificate";
 
-    // Auto-check QR ?code=
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const codeFromURL = params.get('code');
-      if(codeFromURL){
-        document.getElementById('certInput').value = codeFromURL;
-        verifyCert();
-      }
-    });
+    Backendless.serverURL = SERVER_URL;
+    Backendless.initApp(APP_ID, API_KEY);
 
-    function verifyCert(){
-      const code = document.getElementById('certInput').value.trim();
-      const resultBox = document.getElementById('result');
-      if(!code){
-        resultBox.innerHTML = 'Please enter a certificate code.';
-        resultBox.classList.add('invalid');
+    async function verifyCertificate(codeFromParam = null) {
+      const certId = codeFromParam || document.getElementById("certificateId").value.trim();
+      const resultBox = document.getElementById("result");
+
+      if (!certId) {
+        resultBox.innerHTML = "<span class='error'>⚠️ Please enter a Certificate Code</span>";
         return;
       }
-      resultBox.innerHTML = 'Checking...';
-      resultBox.classList.remove('invalid');
 
-      const queryBuilder = Backendless.DataQueryBuilder.create()
-        .setWhereClause(`certCode = '${code}'`);
+      try {
+        const query = Backendless.DataQueryBuilder.create()
+                      .setWhereClause(`certCode = '${certId}'`);
+        const records = await Backendless.Data.of(TABLE_NAME).find(query);
 
-      Backendless.Data.of('Certificates').find(queryBuilder)
-      .then(records => {
-        if(records.length > 0){
-          const rec = records[0];
-          resultBox.innerHTML = `
-            <p><strong>Student:</strong> ${rec.name}</p>
-            <p><strong>Course:</strong> ${rec.course}</p>
-            <p><strong>Date:</strong> ${rec.date}</p>
-            <p><strong>Certificate Code:</strong> ${rec.certCode}</p>
-            <p><strong>Status:</strong> ✅ Valid</p>
-          `;
-          resultBox.classList.remove('invalid');
+        if (records.length > 0) {
+          const cert = records[0];
+          resultBox.innerHTML = `<span class='success'>✅ Certificate Found!<br>
+            <b>Name:</b> ${cert.studentName || "N/A"} <br>
+            <b>Course:</b> ${cert.courseName || "N/A"} <br>
+            <b>Code:</b> ${cert.certCode} <br>
+            <b>Date:</b> ${cert.issueDate || "N/A"}</span>`;
         } else {
-          resultBox.innerHTML = '❌ No record found for this certificate code.';
-          resultBox.classList.add('invalid');
+          resultBox.innerHTML = "<span class='error'>❌ Invalid Certificate Code</span>";
         }
-      })
-      .catch(err=>{
-        resultBox.innerHTML = `⚠️ Error: ${err.message}`;
-        resultBox.classList.add('invalid');
-      });
+      } catch (error) {
+        console.error(error);
+        resultBox.innerHTML = "<span class='error'>⚠️ Error verifying certificate</span>";
+      }
     }
-  </script>
 
+    // ✅ Auto-verify if ?code=... is in URL
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const certCode = params.get("code");
+      if (certCode) {
+        document.getElementById("certificateId").value = certCode;
+        verifyCertificate(certCode);
+      }
+    };
+  </script>
 </body>
 </html>
